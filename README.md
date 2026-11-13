@@ -1,12 +1,28 @@
-# ENSEMBLE
-#โปรเจกต์นี้คือการสร้าง Ensemble Learning ด้วยการเขียนอัลกอริทึมเอง 2 แบบ คือ Bagging กับ Boosting แล้วนำไปจำแนกพันธุ์ดอก Iris ทั้งสองแบบใช้แนวคิดเดียวกัน คือให้โมเดลหลายตัวช่วยกันตัดสินใจ ซึ่งมักแม่นยำกว่าโมเดลเดียว จุดเด่นของโปรเจกต์คือผสม classifier ต่างชนิดกัน 5 ตัว (Decision Tree, KNN, SVM, Logistic Regression, Naive Bayes) แทนที่จะใช้ชนิดเดียวแบบ Bagging/Boosting ทั่วไป
+# Ensemble Learning: Custom Bagging & Boosting (Iris Dataset)
 
-1.ข้อมูลที่ใช้: ชุดข้อมูล Iris มีดอกไม้ 150 ดอก 3 สายพันธุ์ (setosa, versicolor, virginica) 2.แต่ละดอกมี 4 ลักษณะ คือความยาวและความกว้างของกลีบเลี้ยงและกลีบดอก ข้อมูลถูกแบ่งเป็น train 3.70% และ test 30% โดยรักษาสัดส่วนแต่ละพันธุ์ให้เท่ากัน จากนั้นปรับสเกลด้วย StandardScaler 4.เพราะ KNN, SVM และ Logistic Regression ไวต่อขนาดของตัวเลข
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
 
-ตอนทำนาย แต่ละโมเดลโหวตโดยมีน้ำหนักเสียงเท่ากับ alpha ของตัวเอง โมเดลที่เก่งจึงมีเสียงดังกว่า ส่วน learning_rate = 0.5 ช่วยลดขนาดของ alpha ไม่ให้โมเดลตัวใดตัวหนึ่งครอบงำมากเกินไป Boosting ช่วยลด bias คือทำให้โมเดลที่อ่อนรวมกันแล้วเก่งขึ้น จึงใช้ base model ที่ตั้งให้อ่อนลง เช่น ต้นไม้ลึกแค่ 2 ชั้น
+โปรเจกต์พัฒนาอัลกอริทึม **Ensemble Learning** ทั้งรูปแบบ **Bagging** และ **Boosting** ขึ้นมาใหม่จากศูนย์ (Custom Implementation from Scratch) บนชุดข้อมูลดอกไม้ **Iris** โดยผสานการทำงานของ Base Classifiers ที่หลากหลาย ได้แก่ *Decision Tree, K-Nearest Neighbors (KNN), Support Vector Machine (SVM), Logistic Regression* และ *Naive Bayes* 
 
-ความแตกต่างหลัก: Bagging ฝึกแบบขนาน ทุกโมเดลเสียงเท่ากัน และเน้นลดความแกว่ง ส่วน Boosting ฝึกแบบต่อเนื่อง โมเดลหลังเรียนจากความผิดของโมเดลก่อน เสียงโหวตไม่เท่ากัน และเน้นลดความผิดพลาดเชิงระบบ
+---
 
-ผลลัพธ์: เมื่อรัน Boosting ได้ Accuracy 91.11% บนชุด test 45 ดอก ทาย setosa และ versicolor ถูกหมด แต่ virginica ถูกทายเป็น versicolor 4 ดอก ซึ่งเป็นเรื่องปกติของ Iris เพราะสองพันธุ์นี้มีลักษณะทับซ้อนกัน ส่วน Bagging ยังไม่ได้รันในแชตนี้ ลองรันแล้วนำผลมาเทียบกันในรายงานได้ครับ
+## จุดเด่นของโปรเจกต์ (Key Features)
 
-ถ้าต้องการ ผมทำเป็นรายงานเอกสารที่แก้ไขได้และดาวน์โหลดเป็น Word หรือ PDF ให้ได้ครับ
+* **Heterogeneous Base Learners:** ผสมผสานโมเดลพื้นฐานหลายประเภทเข้าด้วยกันในชุด Ensemble เดียว
+* **Custom Parallel Bagging:** จำลองการสุ่มตัวอย่างแบบ *Bootstrap Sampling* พร้อมรันแบบขนาน (Parallel Computing) ผ่าน `joblib` และตัดสินผลด้วย *Majority Voting*
+* **Custom Sequential Boosting:** พัฒนาอัลกอริทึม **Multi-class SAMME** ที่เรียนรู้จากความผิดพลาดในรอบก่อนหน้าด้วยการปรับค่าน้ำหนักข้อมูล (Sample Weighting)
+* **Auto-Fallback Dataset:** รองรับการโหลดข้อมูลจากไฟล์ `Iris.csv` ในเครื่อง และดึงข้อมูลจาก `sklearn.datasets` อัตโนมัติหากไม่พบไฟล์
+
+---
+
+## โครงสร้างโปรเจกต์ (Project Structure)
+
+```text
+├── 1_bagging_parallel.py      # อัลกอริทึม Parallel Bagging (Bootstrap + Majority Voting)
+├── 2_boosting_sequential.py   # อัลกอริทึม Sequential Boosting (Multi-class SAMME)
+├── Iris.csv                   # ชุดข้อมูลดอกไม้ Iris (มีระบบสำรองอัตโนมัติหากไม่มีไฟล์)
+├── .gitignore                 # ไฟล์ละเว้นแคชและไฟล์ชั่วคราวสำหรับ Git
+└── README.md                  # เอกสารแนะนำการใช้งานโปรเจกต์
